@@ -49,8 +49,7 @@ const vlayer = createVlayerClient({
 });
 
 async function generateWebProof() {
-  console.log("⏳ Generating web proof for Etherscan API...");
-  
+
   const { stdout } = await runProcess("vlayer", [
     "web-proof-fetch",
     "--notary",
@@ -58,15 +57,11 @@ async function generateWebProof() {
     "--url",
     URL_TO_PROVE,
   ]);
-  console.log("stdout", stdout)
   return stdout;
 }
 
-
-
 console.log("⏳ Fetching ERC20 balance from Etherscan...");
 const webProof = await generateWebProof();
-console.log("webProof", webProof)
 
 console.log("⏳ Generating cryptographic proof...");
 const hash = await vlayer.prove({
@@ -77,17 +72,13 @@ const hash = await vlayer.prove({
     {
       webProofJson: String(webProof),
     },
-    URL_TO_PROVE, // Pass the full URL
-  ],
+  ], 
   chainId: chain.id,
   gasLimit: config.gasLimit,
 });
 
 const result = await vlayer.waitForProvingResult({ hash });
 const [proof, balance] = result;
-
-console.log("proof", proof)
-
 
 console.log("✅ Proof generated successfully!");
 console.log(`💰 Token Balance: ${balance}`);
