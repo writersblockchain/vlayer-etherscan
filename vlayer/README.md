@@ -12,3 +12,6 @@ It generates a **zero-knowledge proof (ZK proof)** based on the API response, wh
 
 You can find a step-by-step guide for running this example in the vlayer documentation:  
 👉 [Getting Started – First Steps](https://book.vlayer.xyz/getting-started/first-steps.html)
+
+VLAYER_ENV=testnet bun run deploy.ts
+VLAYER_ENV=testnet bun run prove.ts
