@@ -9,21 +9,27 @@ import {
 } from "@vlayer/sdk/config";
 import { spawn } from "child_process";
 
-// The URL is hardcoded in the contract, so we use the same one here
-const URL_TO_PROVE = "https://api.etherscan.io/v2/api?chainid=1&module=account&action=tokenbalance&contractaddress=0x57d90b64a1a57749b0f932f1a3395792e12e7055&address=0xe04f27eb70e025b78871a2ad7eabe85e61212761&tag=latest&apikey=FWRCZEZCTDZ2DW9HCTQ78DAICCI53MDIEP";
+// User Configuration - Update these values
+const ERC20_CONTRACT_ADDRESS = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"; // USDC contract (hardcoded in contract)
+const WALLET_ADDRESS = "0x4B808ec5A5d53871e0b7bf53bC2A4Ee89dd1ddB1"; // Wallet to check
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY; // Your API key
 
 // Get deployed contract addresses from environment
 const PROVER_ADDRESS = process.env.VITE_PROVER_ADDRESS;
 const VERIFIER_ADDRESS = process.env.VITE_VERIFIER_ADDRESS;
 
-// Validate required parameters
 if (!PROVER_ADDRESS || !VERIFIER_ADDRESS) {
   throw new Error(
     "Contract addresses not found. Please run 'bun run deploy.ts' first to deploy contracts."
   );
 }
 
+// Construct the full URL
+const URL_TO_PROVE = `https://api.etherscan.io/v2/api?chainid=1&module=account&action=tokenbalance&contractaddress=${ERC20_CONTRACT_ADDRESS}&address=${WALLET_ADDRESS}&tag=latest&apikey=${ETHERSCAN_API_KEY}`;
+
 console.log("🎯 Proving ERC20 Balance...");
+console.log(`📄 Token Contract: ${ERC20_CONTRACT_ADDRESS}`);
+console.log(`👤 Wallet Address: ${WALLET_ADDRESS}`);
 console.log(`📝 Prover Contract: ${PROVER_ADDRESS}`);
 console.log(`🔍 Verifier Contract: ${VERIFIER_ADDRESS}`);
 
@@ -52,11 +58,15 @@ async function generateWebProof() {
     "--url",
     URL_TO_PROVE,
   ]);
+  console.log("stdout", stdout)
   return stdout;
 }
 
+
+
 console.log("⏳ Fetching ERC20 balance from Etherscan...");
 const webProof = await generateWebProof();
+console.log("webProof", webProof)
 
 console.log("⏳ Generating cryptographic proof...");
 const hash = await vlayer.prove({
@@ -67,6 +77,7 @@ const hash = await vlayer.prove({
     {
       webProofJson: String(webProof),
     },
+    URL_TO_PROVE, // Pass the full URL
   ],
   chainId: chain.id,
   gasLimit: config.gasLimit,
@@ -75,8 +86,21 @@ const hash = await vlayer.prove({
 const result = await vlayer.waitForProvingResult({ hash });
 const [proof, balance] = result;
 
+console.log("proof", proof)
+
+
 console.log("✅ Proof generated successfully!");
 console.log(`💰 Token Balance: ${balance}`);
+
+// Convert balance to human readable format (assuming 18 decimals for most ERC20 tokens)
+// try {
+//   const balanceNumber = BigInt(balance);
+//   const decimals = 18; // Most ERC20 tokens use 18 decimals
+//   const humanReadableBalance = Number(balanceNumber) / Math.pow(10, decimals);
+//   console.log(`📊 Human Readable Balance: ${humanReadableBalance.toLocaleString()} tokens`);
+// } catch (error) {
+//   console.log(`⚠️  Could not convert balance to human readable format: ${error}`);
+// }
 
 console.log("⏳ Verifying proof on-chain...");
 
@@ -117,6 +141,8 @@ console.log("✅ Balance verified and stored on-chain!");
 console.log("");
 console.log("🎉 PROOF COMPLETE! Summary:");
 console.log("════════════════════════════════");
+console.log(`📄 Token Contract: ${ERC20_CONTRACT_ADDRESS}`);
+console.log(`👤 Wallet Address: ${WALLET_ADDRESS}`);
 console.log(`💰 Verified Balance: ${balance}`);
 console.log(`🔗 Verifier Contract: ${VERIFIER_ADDRESS}`);
 console.log(`📝 Transaction Hash: ${txHash}`);

@@ -9,11 +9,33 @@ contract EtherscanProver is Prover {
     using WebProofLib for WebProof;
     using WebLib for Web;
 
-    string public constant DATA_URL = "https://api.etherscan.io/v2/api?chainid=1&module=account&action=tokenbalance&contractaddress=0x57d90b64a1a57749b0f932f1a3395792e12e7055&address=0xe04f27eb70e025b78871a2ad7eabe85e61212761&tag=latest&apikey=FWRCZEZCTDZ2DW9HCTQ78DAICCI53MDIEP";
+    // Hardcode the URL pattern with specific contract address, user provides wallet & API key
+string public constant URL_PATTERN = "https://api.etherscan.io/v2/api?chainid=1&module=account&action=tokenbalance&contractaddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&address=";
 
-    function main(WebProof calldata webProof) public view returns (Proof memory, string memory) {
-        Web memory web = webProof.verify(DATA_URL);
+    function main(WebProof calldata webProof, string memory fullUrl) public view returns (Proof memory, string memory) {
+        // Validate that the URL starts with our expected pattern
+        require(startsWith(fullUrl, URL_PATTERN), "Invalid URL pattern");
+        
+        Web memory web = webProof.verify(fullUrl);
         string memory balance = web.jsonGetString("result");
         return (proof(), balance);
+    }
+
+    // Helper function to check if a string starts with a given prefix
+    function startsWith(string memory str, string memory prefix) private pure returns (bool) {
+        bytes memory strBytes = bytes(str);
+        bytes memory prefixBytes = bytes(prefix);
+        
+        if (strBytes.length < prefixBytes.length) {
+            return false;
+        }
+        
+        for (uint i = 0; i < prefixBytes.length; i++) {
+            if (strBytes[i] != prefixBytes[i]) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }
