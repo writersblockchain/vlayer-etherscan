@@ -9,7 +9,6 @@ contract EtherscanProver is Prover {
     using WebProofLib for WebProof;
     using WebLib for Web;
 
-    // URL prefix that we trust - everything after this can be redacted for privacy
     string public constant URL_PREFIX = "https://api.etherscan.io/v2/api?chainid=1&module=account&action=tokenbalance&contractaddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&address=";
 
     function main(WebProof calldata webProof) 
@@ -18,7 +17,7 @@ contract EtherscanProver is Prover {
         returns (Proof memory, string memory) 
     {
         // Verify the web proof came from a URL starting with our trusted prefix
-        // Everything after the prefix (wallet address & API key) is redacted for privacy
+        // Everything after the prefix (wallet address & API key) is redacted
         Web memory web = webProof.verifyWithUrlPrefix(URL_PREFIX);
         
         string memory balance = web.jsonGetString("result");

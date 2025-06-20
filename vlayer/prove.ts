@@ -57,13 +57,15 @@ async function generateWebProof() {
     "--url",
     URL_TO_PROVE,
   ]);
+
   return stdout;
 }
 
 console.log("⏳ Fetching ERC20 balance from Etherscan...");
-const webProof = await generateWebProof();
 
-console.log("⏳ Generating cryptographic proof...");
+const webProof = await generateWebProof();
+console.log("webProof: ", webProof)
+
 const hash = await vlayer.prove({
   address: PROVER_ADDRESS,
   functionName: "main",
@@ -80,18 +82,10 @@ const hash = await vlayer.prove({
 const result = await vlayer.waitForProvingResult({ hash });
 const [proof, balance] = result;
 
+console.log("proof: ", proof)
+
 console.log("✅ Proof generated successfully!");
 console.log(`💰 Token Balance: ${balance}`);
-
-// Convert balance to human readable format (assuming 18 decimals for most ERC20 tokens)
-// try {
-//   const balanceNumber = BigInt(balance);
-//   const decimals = 18; // Most ERC20 tokens use 18 decimals
-//   const humanReadableBalance = Number(balanceNumber) / Math.pow(10, decimals);
-//   console.log(`📊 Human Readable Balance: ${humanReadableBalance.toLocaleString()} tokens`);
-// } catch (error) {
-//   console.log(`⚠️  Could not convert balance to human readable format: ${error}`);
-// }
 
 console.log("⏳ Verifying proof on-chain...");
 
@@ -105,7 +99,7 @@ const gas = await ethClient.estimateContractGas({
   blockTag: "pending",
 });
 
-console.log(`⛽ Estimated gas: ${gas}`);
+// console.log(`⛽ Estimated gas: ${gas}`);
 
 // Submit the verification transaction
 const txHash = await ethClient.writeContract({
