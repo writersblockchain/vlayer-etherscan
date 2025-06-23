@@ -75,6 +75,8 @@ VLAYER_ENV=testnet bun run deploy.ts
 
 Navigate to [prove.ts](./vlayer/prove.ts)
 
+Add your `ETHERSCAN_API_KEY` to `.env` (`.env` is created with prover and verifier contracts after successful contract deployment :D)
+
 Update the `WALLET_ADDRESS` (line 14) to the wallet address you want to verify ERC20 balance for.
 
 Then, execute the prover:
