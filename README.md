@@ -26,22 +26,27 @@ Using this guide, you will learn how to deploy vlayer Prover and Verifier contra
 
    If you'd verify a different ERC20 balance, simply update `contractAddress` to your ERC20 contract address.
 
-4. Compile the contracts:
+4. Install dependencies:
+   ```
+   soldeer install
+   ```
+
+5. Compile the contracts:
    ```bash
    forge build
    ```
 
-5. Install Typescript dependencies
+6. Install Typescript dependencies
    ```bash
    cd vlayer
    bun install
    ```
 
-6. Configure testnet environment
+7. Configure testnet environment
    
    In the [vlayer directory](./vlayer/), create `.env.testnet.local`
    ```bash
-   touch vlayer/.env.testnet.local
+   touch .env.testnet.local
    ```
    
    Provide a private key for deploying example contracts and sending transactions to the verifier:

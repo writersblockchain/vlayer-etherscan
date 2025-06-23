@@ -17,7 +17,6 @@ contract EtherscanProver is Prover {
         returns (Proof memory, string memory) 
     {
         // Verify the web proof came from a URL starting with our trusted prefix
-        // Everything after the prefix (wallet address & API key) is redacted
         Web memory web = webProof.verifyWithUrlPrefix(URL_PREFIX);
         
         string memory balance = web.jsonGetString("result");
